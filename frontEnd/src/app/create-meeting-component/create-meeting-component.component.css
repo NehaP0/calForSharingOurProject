@@ -1,0 +1,433 @@
+  #parentDiv {
+    position: relative;
+    background-color: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .btnToSwitchTime,
+  #timeZones {
+    margin-top: 20px;
+    padding: 10px;
+    border-radius: 10px;
+  }
+  #timeZones {
+    width: 45%;
+  }
+
+  #avatarDiv {
+    margin-bottom: 10px;
+    width: 100px;
+    height: 100px;
+    margin: auto;
+  }
+
+  #avatarDiv > img {
+    width: 100%;
+    height: 100%;
+  }
+
+  #timeZonesDiv {
+    /* width:50px; */
+  }
+  #timeZones {
+    /* float: right;
+      width:100%; */
+  }
+  full-calendar {
+    height: 500px;
+    width: 400px;
+  }
+
+  .timeDiv {
+    width: 40%;
+    /* border: 1px solid green; */
+    margin-left: 2px;
+    display: flex;
+    justify-content: space-between;
+    /* height: 100vh; */
+  }
+
+  #times {
+    margin: auto;
+    width: 70%;
+    overflow-x: hidden;
+    height: 302px;
+    margin-top: 40px;
+    scroll-behavior: auto;
+  }
+
+  .oneTime {
+      width: 97%;
+      height: 44px;
+      border-radius: 5px;
+      margin-bottom: 4px;
+      background-color: white;
+      color:  #2596FF !important;
+      border: 1px solid #2596FF !important;
+  }
+
+  .oneTimeHidden,
+  .nextBtn {
+    width: 48%;
+    height: 44px;
+    /* border: 1px solid #0060E6; */
+    color: #2596FF;
+    /* background-color: white; */
+    border-radius: 5px;
+    margin-bottom: 4px;
+  }
+
+  .oneTimeHidden {
+    margin-right: 4%;
+    background-color: #fff;
+    border: 1px solid #2596FF !important;
+    color: #2596FF;
+
+  }
+  .hostName p {
+    margin-bottom: 0;
+  }
+
+  #timeLeftDIv {
+    /* border: 1px solid blue; */
+    width: 200px;
+    text-align: center;
+  }
+
+  #selectedDateP {
+    font-size: 15px;
+    font-family: sans-serif;
+    margin-top: 60px;
+  }
+
+  .nextBtn {
+    background-color: #2596FF !important;
+    color: white;
+    border: none !important;
+  }
+
+  .confirmEvent {
+    margin: 2px;
+    width: 30%;
+    height: 30px;
+  }
+
+  #loading {
+    text-align: center;
+  }
+
+  #zoom {
+    border: 1px solid rgb(160, 158, 158);
+    width: 25%;
+    text-align: center;
+    border-radius: 5px;
+  }
+
+  #zoomIcon {
+    display: block;
+    margin: auto;
+    width: 30px;
+    height: 30px;
+  }
+
+  /* #rightDiv{
+      width: 70%;
+      padding-top: 2%;
+      height: 150vh;
+      margin: auto;
+  } */
+  #eventDeets {
+    height: 100%;
+    margin: auto;
+    border-radius: 5px;
+    overflow: hidden;
+    background: white;
+    box-shadow: 0px 0px 2px 0px #00000040;
+  }
+
+  #greyStrip {
+    background-color: #333333;
+    /* height: 10px; */
+    padding: 15px;
+    color: white;
+    font-size: 14px;
+    border-radius: 5px 5px 0 0;
+  }
+
+  #greyStrip p {
+    display: inline;
+  }
+
+  #timeAndLocation {
+    display: flex;
+    justify-content: space-around;
+    /* color: #1A1A1A9C; */
+    font-weight: bold;
+
+    /* border: 1px solid red; */
+    margin-bottom: 30px;
+  }
+
+  #timeAndLocation div {
+    display: flex;
+  }
+
+  ng-icon {
+    display: flex;
+    font-size: 20px;
+    margin-right: 10px;
+  }
+
+  #locationP {
+    font-size: 14px;
+  }
+
+  #previewDiv {
+    /* border: 1px solid black; */
+    /* margin-top: 40%; */
+    width: 50%;
+    margin-left: 25%;
+    font-size: 20px;
+    color: rgb(124, 123, 123);
+    font-weight: bold;
+  }
+
+  #bottomDiv {
+    margin-top: 50px;
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  #bottomDiv div {
+    display: flex;
+    width: 50%;
+    justify-content: space-evenly;
+    font-size: 14px;
+  }
+
+  #redWarning {
+    color: #c84545;
+    font-size: 13px;
+    font-weight: 300;
+  }
+
+  #previewP {
+    text-align: left;
+    color: #1a1a1a;
+  }
+
+  /* #calendar {
+      font-size: 15px;
+      width: 60%;
+      height: 100%;
+  } */
+  #waitDiv {
+    width: 100%;
+    text-align: center;
+  }
+  #divForCalendar {
+    /* border: 1px solid red; */
+    font-size: 15px;
+  }
+
+  #divForCalendarAndTime {
+    display: flex;
+    justify-content: center;
+  }
+
+  /* -------MontCalendar starts------------- */
+
+  ::ng-deep #calendar {
+    border: none;
+    padding: 20px 20px 63px 20px;
+  }
+
+  ::ng-deep #calendar .fc-col-header-cell-cushion {
+    padding-bottom: 10px;
+  }
+
+  ::ng-deep #calendar .btnToSwitchTime .fc .fc-highlight {
+    border-radius: 50px;
+    background-color: #ffcab0 !important;
+  }
+
+  ::ng-deep .fc .fc-daygrid-day-frame {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center;
+  }
+
+  ::ng-deep #calendar .fc-daygrid-day,
+  ::ng-deep #calendar .fc-col-header-cell {
+    border: none;
+  }
+
+  ::ng-deep #calendar .fc-day-past a.fc-daygrid-day-number {
+    /* background-color: red; */
+    color: grey !important;
+    /* border: 1px solid red; */
+  }
+
+
+  ::ng-deep #calendar a.fc-daygrid-day-number {
+    font-size: 15px !important;
+    /* font-weight: bold !important; */
+    font-family: sans-serif;
+    /* font-family: cursive; */
+    /* background-color: rgb(244, 250, 253); */
+    /* margin: 2px; */
+    /* border-radius: 50px;*/
+    /* border: 1px solid red; */
+  }
+
+  /* .fc .fc-scrollgrid-liquid */
+  ::ng-deep .fc .fc-scrollgrid-liquid,
+  ::ng-deep .fc .fc-scrollgrid-liquid td,
+  ::ng-deep .fc .fc-scrollgrid-liquid th {
+    border: none;
+  }
+
+  ::ng-deep #calendar a.fc-daygrid-day-number:hover {
+    cursor: pointer;
+  }
+  ::ng-deep #calendar .fc-toolbar-title {
+    font-size: 15px;
+  }
+
+  ::ng-deep #calendar .fc-button {
+    background-color: #F2F9FF;
+    color: #2596FF;
+    padding: 0px;
+    border: none;
+    font-size: 10px;
+  }
+
+
+
+  ::ng-deep #calendar a.fc-daygrid-day-number div {
+    font-weight: 500;
+    font-size: 14px;
+    color: #000 !important;
+  }
+
+  ::ng-deep a {
+    color: rgb(12, 12, 12);
+    text-decoration: none;
+    /* font-weight:300;
+      font-size: 14px; */
+    font-size: 13px;
+    font-weight: 400;
+  }
+
+  ::ng-deep .fc .fc-toolbar.fc-header-toolbar {
+      padding-bottom: 20px;
+      border-bottom: 1px solid #c6c6c6;
+
+  }
+
+  ::ng-deep .fc-daygrid-day.fc-day-selected {
+      border-radius: 50%;
+      background-color: #4CAF50 !important;
+      color: white;
+    }
+
+
+  /* -------MontCalendar ends--------- */
+  /* ====================================== */
+
+  #noTimesAv {
+    background-color: rgb(234, 234, 255);
+    padding: 5px;
+    border-radius: 5px;
+    /* font-size: 10px; */
+  }
+
+  #noTimesAv > :nth-child(1) {
+    font-weight: bold;
+  }
+
+  #spotsLeft {
+      margin-top: -2px;
+      font-size: 12px;
+  }
+
+  .eventDeetsDetails {
+    display: flex;
+    justify-content: space-evenly;
+  }
+
+  .dropdown {
+    margin: 0 10px;
+  }
+
+  .dropdown.show {
+    display: inline-block;
+  }
+
+  .dropdown:not(.show) {
+    display: none;
+  }
+
+  @media (max-width: 780px) {
+    #eventDeets {
+      width: 80%;
+    }
+  }
+
+  @media (max-width: 575px) {
+    #eventDeets {
+      width: 90%;
+    }
+  }
+
+  .eventDeetsOuter {
+    padding: 20px;
+    background-color: #f7f7f7 !important;
+    border-radius: 10px;
+    width: 70%;
+  }
+
+  .greyStrip {
+    background-color: #e9f5ff;
+    text-align: center;
+    padding: 10px;
+    color: #000000;
+    font-size: 14px;
+    border-radius: 5px 5px 0 0;
+  }
+
+  .greyStrip p {
+    margin-bottom: 0;
+    font-size: 14px;
+  }
+
+  .greyStrip span {
+    font-weight: bold;
+  }
+
+  .MeetingName {
+    font-weight: bold;
+    font-size: 20px;
+    margin-bottom: 20px;
+    text-align: left;
+    margin-top: 40px;
+  }
+
+  .MeetingDuration {
+    font-size: 14px !important;
+    display: flex;
+    color: #000000;
+    text-align: left;
+    align-items: center;
+    margin: 10px 0px;
+  }
+
+  #belowGreyStrip {
+    width: 30%;
+  }
+
+  .JustForDivForImgClass img {
+    width: 200px;
+    margin-top: 100px;
+  }

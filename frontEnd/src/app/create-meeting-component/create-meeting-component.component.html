@@ -1,0 +1,133 @@
+<div id="parentDiv" [ngStyle]="{ color: textColor }">
+  <div class="eventDeetsOuter">
+    <div id="eventDeets" [ngStyle]="{ 'background-color': backGroundcolor }">
+      <div class="greyStrip">
+        <p>
+          <span>This is a preview.</span> To book a Meeting, share a link with
+          your invitees.
+        </p>
+      </div>
+
+      <div class="eventDeetsDetails">
+        <div id="belowGreyStrip">
+          <div>
+            <p class="MeetingName">{{ evName || "Event name here" | titlecase }}</p>
+          </div>
+          <div class="hostName">
+            <p><i class="feather icon-mic"></i>{{ loggedInName | titlecase }}</p>
+          </div>
+
+
+          <!-- <div id="avatarDiv" *ngIf="image">
+            <img *ngIf="image" [src]="avatar" alt="img" />
+          </div> -->
+
+          <div class="MeetingDuration">
+            <i class="feather icon-clock" style='margin-right: 2px;'></i>
+            <span *ngIf="evDurHrs != 0"> {{ evDurHrs }}</span><span *ngIf="evDurHrs != 0">hrs &nbsp;</span>
+            <span *ngIf="evDurMins != 0"> {{ evDurMins }} </span>
+            <span *ngIf="evDurMins != 0"> mins </span>
+          </div>
+
+          <div class="MeetingLocation">
+            <i class="feather icon-map-pin"></i>
+            <span id="locationP"> {{
+              "Google Meet" || "Add a location for it to show here"
+              }}</span>
+          </div>
+
+
+          <!-- <hr /> -->
+          <div class="JustForDivForImgClass">
+
+            <img class="JustForDivForImg" src="https://res.cloudinary.com/dbmka9scm/image/upload/v1728377499/calander2_s4uwlm.svg" />
+
+          </div>
+
+        </div>
+
+        <div id="divForCalendarAndTime">
+          <div id="divForCalendar">
+            <full-calendar id="calendar" defaultView="dayGridMonth" *ngIf="formattedMeetingsHide.length > 0"
+              [options]="calendarOptions" plugins="{[dayGridPlugin]}">
+            </full-calendar>
+          </div>
+
+          <div *ngIf="displayTimeDiv" class="timeDiv">
+            <div id="timeLeftDIv">
+              <p id="selectedDateP">{{ dateSelected }}</p>
+
+              <div id="times" *ngIf="evType == 'One-on-One'">
+                <div *ngFor="let oneTime of userAvailaibleArray; let i = index">
+                  <button class="oneTime" [ngStyle]="{
+                      'background-color': backGroundcolor,
+                      color: btnAndLinkColor,
+                      border: '1px solid ' + btnAndLinkColor
+                    }" (click)="setEventTime(oneTime)" [hidden]="showNextFor == oneTime">
+                    {{ oneTime }}
+                  </button>
+                  <button class="oneTimeHidden" [hidden]="showNextFor != oneTime">
+                    {{ oneTime }}
+                  </button>
+                  <button class="nextBtn" [ngStyle]="{
+                      'background-color': btnAndLinkColor,
+                      border: '1px solid ' + btnAndLinkColor
+                    }" [hidden]="showNextFor != oneTime" (click)="nextButton(evName, evDurHrs, evDurMins, oneTime)">
+                    Next
+                  </button>
+                </div>
+                <div id="noTimesAv" *ngIf="userAvailaibleArray.length == 0">
+                  <p>No times available on {{ dateSelected }}</p>
+                  <p>Please select another date.</p>
+                </div>
+              </div>
+
+              <div id="times" *ngIf="evType == 'Group'">
+                <div *ngFor="let oneTime of userAvailaibleArray; let i = index">
+                  <button class="oneTime" [ngStyle]="{
+                      'background-color': backGroundcolor,
+                      color: btnAndLinkColor,
+                      border: '1px solid ' + btnAndLinkColor
+                    }" (click)="setEventTime(oneTime)" [hidden]="showNextFor == oneTime">
+                    {{ oneTime["time"] }}
+                    <p id="spotsLeft" *ngIf="
+                        displayRemainingSpotsOnBookingPageGrp &&
+                        oneTime['remainingBookings'] == 1
+                      ">
+                      {{ oneTime["remainingBookings"] }} spot left
+                    </p>
+                    <p id="spotsLeft" *ngIf="
+                        displayRemainingSpotsOnBookingPageGrp &&
+                        oneTime['remainingBookings'] > 1
+                      ">
+                      {{ oneTime["remainingBookings"] }} spots left
+                    </p>
+                  </button>
+                  <button class="oneTimeHidden" [hidden]="showNextFor != oneTime">
+                    {{ oneTime["time"] }}
+                  </button>
+                  <button class="nextBtn" [hidden]="showNextFor != oneTime" [ngStyle]="{
+                      'background-color': btnAndLinkColor,
+                      border: '1px solid ' + btnAndLinkColor
+                    }" (click)="
+                      nextButton(evName, evDurHrs, evDurMins, oneTime['time'])
+                    ">
+                    Next
+                  </button>
+                </div>
+                <div id="noTimesAv" *ngIf="!userAvailaibleArray.length">
+                  <p>No times available on {{ dateSelected }}</p>
+                  <p>Please select another date.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="!formattedMeetingsHide.length" id="waitDiv">
+    <h3>Please Wait...</h3>
+  </div>
+</div>

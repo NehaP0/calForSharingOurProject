@@ -1,0 +1,96 @@
+<div id="main">
+  <div *ngIf="wait" id="waitBox">
+    <h3>Please wait...</h3>
+  </div>
+
+  <div id="content" [ngStyle]="{'background-color': backGroundcolor, 'color':textColor}">
+    <div>
+      <button> < Back</button>
+    </div>
+    <div class="hl"></div>
+   <div class="heroSection">
+    <div id="leftDiv">
+      <!-- <p>{{ nameWhoseCalendar }}</p> -->
+      <p class="agenda">Agenda</p>
+      <p id="eventName">{{ evName | titlecase }}</p>
+      <p class="leftSideDetails">
+        <i class="feather icon-clock"></i><span *ngIf="evDurHrs"> {{ evDurHrs }} hrs</span>
+        <span *ngIf="evDurMins"> {{ evDurMins }} mins</span>
+      </p>
+      <p class="leftSideDetails">
+        <i class="feather icon-calendar"></i><span *ngIf="startTime"> {{ startTime[0] }}{{
+          startTime[1] }}{{
+          startTime[2]
+          }}{{ startTime[3] }}{{ startTime[4] }}</span>
+        -
+        <span *ngIf="endTime">{{ endTime[0] }}{{ endTime[1] }}{{ endTime[2] }}{{ endTime[3]
+          }}{{ endTime[4] }}, </span><span>{{ day }},</span><span> {{ month }}</span><span *ngIf="date"> {{ date[8] }}{{
+          date[9] }},</span><span *ngIf="date"> {{ date[0] }}{{ date[1] }}{{ date[2] }}{{ date[3] }}</span>
+      </p>
+      <p class="leftSideDetails">
+        <i class="feather icon-globe"></i><span> {{selectedTimeZone}}</span>
+      </p>
+    </div>
+    <div class="vl"></div>
+    <div id="rightDiv">
+
+
+      <!-- <div class="powered-by-badge" *ngIf="cloduraBrandingReq">
+            <div id="poweredBy">Powered by <div id="clodura">Clodura.AI</div> </div>
+          </div> -->
+
+      <h3>Enter Details</h3>
+
+      <form [formGroup]="userForm" (ngSubmit)="formSubmit()">
+        <label  for="Name">Name*</label>
+        <input placeholder="Type your name..." type="text" id="Name" required formControlName="firstName" />
+        <p *ngIf="nameBlank" class="warning">Can't be blank.</p>
+
+
+        <div *ngIf="lastNameRequired">
+          <label for="LastName">Last Name*</label>
+          <input placeholder="Type your last name..." type="text" id="Text" required formControlName="lastName"  />
+          <p *ngIf="lastNameBlank" class="warning">Can't be blank.</p>
+        </div>
+
+        <label for="Email">Email *</label>
+        <input placeholder="johnsmith@clodura.ai" type="email" id="Email" required formControlName="email" />
+        <p *ngIf="emailBlank" class="warning">Can't be blank.</p>
+
+
+
+        <div id="addGuestsDiv" *ngIf="allowInviteesToAddGuests">
+          <button id="addGuests" *ngIf="!addGuests" (click)="addguests()" type="button"
+            [ngStyle]="{'background-color':btnAndLinkColor, 'border':'1px solid' +  btnAndLinkColor}">
+            + Add Guests
+          </button>
+          <div id="guests">
+            <label *ngIf="addGuests" for="guests">Guest Email(s)</label>
+            <input placeholder="Add guest email" *ngIf="addGuests" type="text" id="Guests" formControlName="guests" />
+          </div>
+          <p *ngIf="addGuests">
+            Notify up to 10 additional guests of the scheduled event.
+          </p>
+        </div>
+
+
+        <div *ngIf="questionsWdAnswers.length">
+          <div *ngFor="let question of questionsWdAnswers; let i = index">
+            <div *ngIf="question['showThisQuestionOrNot']" class="questionDiv">
+              <label class="question">{{question["question"]}}</label>
+              <span *ngIf="question['answerRequiredOrNot']">*</span>
+              <input placeholder="Write here..." type="text" [(ngModel)]="question['answer']" formControlName="answer">
+              <p *ngIf="showWarning && question['answerRequiredOrNot'] && !question['answer']" class="warning">Can't be
+                blank.</p>
+            </div>
+          </div>
+        </div>
+
+        <button id="scheduleEvent" type="submit"
+          [ngStyle]="{'background-color':btnAndLinkColor, 'border':'1px solid' +  btnAndLinkColor}">Schedule
+          Event</button>
+      </form>
+    </div>
+   </div>
+  </div>
+</div>

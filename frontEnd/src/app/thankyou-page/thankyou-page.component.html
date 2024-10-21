@@ -1,0 +1,36 @@
+<div id="content" [ngStyle]="{'color': textColor, 'background-color':backGroundcolor}">
+
+  <div>
+      <h1>Booking Complete!</h1>
+      <p>Your meeting with {{nameWhoseCalendar}} is scheduled. A calendar invitation with all the details was sent to
+          you at {{emailOfWhoFilledTheForm}}.</p>
+  </div>
+
+  <div>
+      <p>Agenda</p>
+      <p>{{evName}}</p>
+      <p>
+          <span *ngIf="evDurHrs"> {{ evDurHrs }} hrs</span>
+          <span *ngIf="evDurMins"> {{ evDurMins }} mins</span>
+      </p>
+      <p>
+          <span *ngIf="startTime">{{ startTime[0] }}{{
+              startTime[1] }}{{
+              startTime[2]
+              }}{{ startTime[3] }}{{ startTime[4] }}</span>
+          -
+          <span *ngIf="endTime">{{ endTime[0] }}{{ endTime[1] }}{{ endTime[2] }}{{ endTime[3]
+              }}{{ endTime[4] }}, </span>
+          <span>{{ day }},</span>
+          <span> {{ month }}</span>
+          <span *ngIf="date"> {{ date[8] }}{{date[9] }}, </span>
+          <span *ngIf="date"> {{ date[0] }}{{ date[1] }}{{ date[2] }}{{ date[3] }}</span>
+      </p>
+      <p>{{selectedTimeZone}}</p>
+
+      <button>Return to Meetings</button>
+
+      <a href="">Reschedule</a>
+  </div>
+
+</div>
