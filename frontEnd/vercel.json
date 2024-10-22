@@ -1,8 +1,15 @@
 {
-  "rewrites": [
-    { "source": "/(.*)", "destination": "/index.html" }
+  "version": 2,
+  "builds": [
+    {
+      "src": "dist/front-end/browser/index.html",
+      "use": "@vercel/static"
+    }
   ],
-  "build": {
-    "outputDirectory": "dist/front-end/browser"
-  }
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
+    }
+  ]
 }
