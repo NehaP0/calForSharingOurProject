@@ -41,6 +41,7 @@ import { ReschedulingComponent } from './rescheduling/rescheduling.component';
 import { ThankyouPageComponent } from './thankyou-page/thankyou-page.component';
 import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
+import { HomeComponent } from './home/home.component';
 
 // import { MakeMeetingComponent } from './make-meeting/make-meeting.component';
 // import { ThankyouPageComponent } from './thankyou-page/thankyou-page.component';
@@ -61,6 +62,7 @@ import { AppRoutingModule } from './app-routing.module';
     CancelConfirmedComponent,
     OopsComponent,
     ReschedulingComponent,
+    HomeComponent,
   ],
   imports: [
     CommonModule,

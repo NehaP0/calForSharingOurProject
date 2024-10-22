@@ -7,8 +7,11 @@ import { CancellationPageComponent } from './cancellation-page/cancellation-page
 import { CancelConfirmedComponent } from './cancel-confirmed/cancel-confirmed.component';
 import { OopsComponent } from './oops/oops.component';
 import { ReschedulingComponent } from './rescheduling/rescheduling.component';
+import { HomeComponent } from './home/home.component';
+
 
 const routes: Routes = [
+  {path: '/', component : HomeComponent},
   { path: 'create', component: CreateMeetingComponentComponent },
   { path: 'makeMeeting', component: MakeMeetingComponent },
   {path : 'thankyou', component : ThankyouPageComponent},
