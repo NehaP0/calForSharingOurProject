@@ -20,16 +20,16 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { NgIconsModule } from '@ng-icons/core';
 import { heroUsers, heroVideoCamera, heroGlobeAsiaAustralia } from '@ng-icons/heroicons/outline';
-import { IonSettingsOutline, IonCopyOutline, IonSearchOutline, IonLogInOutline, IonMailOpenOutline } from '@ng-icons/ionicons'
-import { BootstrapStars, BootstrapCaretDownFill, BootstrapChevronDown, BootstrapCircleFill, BootstrapPlusCircleFill, BootstrapClock, BootstrapQuestionCircle, BootstrapArrowLeft, BootstrapPencil, BootstrapPeople, BootstrapCameraVideo } from '@ng-icons/bootstrap-icons'
-import { remixUserAddLine, remixCalendar2Line, remixStackshareLine, remixArrowRightSLine, remixDeleteBin6Line } from '@ng-icons/remixicon'
-import { TypAttachmentOutline, TypTick } from '@ng-icons/typicons'
-import { circumRoute } from '@ng-icons/circum-icons'
-// import { octApps, octLocation } from '@ng-icons/octicons'
-import {OctLocation, OctLink} from '@ng-icons/octicons'
+// import { IonSettingsOutline, IonCopyOutline, IonSearchOutline, IonLogInOutline, IonMailOpenOutline } from '@ng-icons/ionicons'
+// import { BootstrapStars, BootstrapCaretDownFill, BootstrapChevronDown, BootstrapCircleFill, BootstrapPlusCircleFill, BootstrapClock, BootstrapQuestionCircle, BootstrapArrowLeft, BootstrapPencil, BootstrapPeople, BootstrapCameraVideo } from '@ng-icons/bootstrap-icons'
+// import { remixUserAddLine, remixCalendar2Line, remixStackshareLine, remixArrowRightSLine, remixDeleteBin6Line } from '@ng-icons/remixicon'
+// import { TypAttachmentOutline, TypTick } from '@ng-icons/typicons'
+// import { circumRoute } from '@ng-icons/circum-icons'
+// // import { octApps, octLocation } from '@ng-icons/octicons'
+// import {OctLocation, OctLink} from '@ng-icons/octicons'
 
 // import { iconoirCrown } from '@ng-icons/iconoir';
-import { TablerEdit } from '@ng-icons/tabler-icons'
+// import { TablerEdit } from '@ng-icons/tabler-icons'
 import { radixCross2 } from '@ng-icons/radix-icons'
 import { DatePipe } from '@angular/common';
 import { CancelConfirmedComponent } from './cancel-confirmed/cancel-confirmed.component';
@@ -79,10 +79,11 @@ import { AppRoutingModule } from './app-routing.module';
     BsDatepickerModule.forRoot(),
     AccordionModule.forRoot(),
     NgIconsModule.withIcons({
-      heroUsers, IonSettingsOutline, BootstrapStars, remixUserAddLine, IonSearchOutline, BootstrapCaretDownFill, IonCopyOutline, BootstrapChevronDown,
-      BootstrapCircleFill, BootstrapPlusCircleFill, TypAttachmentOutline, remixCalendar2Line, remixStackshareLine, circumRoute, BootstrapClock,
-      BootstrapQuestionCircle, remixArrowRightSLine, heroVideoCamera, heroGlobeAsiaAustralia, BootstrapArrowLeft, TypTick, TablerEdit, remixDeleteBin6Line, radixCross2,
-      IonLogInOutline, IonMailOpenOutline, BootstrapPencil, BootstrapPeople, BootstrapCameraVideo, OctLocation
+      heroUsers,radixCross2,
+      // IonSettingsOutline, BootstrapStars, remixUserAddLine, IonSearchOutline, BootstrapCaretDownFill, IonCopyOutline, BootstrapChevronDown,
+      // BootstrapCircleFill, BootstrapPlusCircleFill, TypAttachmentOutline, remixCalendar2Line, remixStackshareLine, circumRoute, BootstrapClock,
+      // BootstrapQuestionCircle, remixArrowRightSLine, heroVideoCamera, heroGlobeAsiaAustralia, BootstrapArrowLeft, TypTick, TablerEdit, remixDeleteBin6Line,
+      // IonLogInOutline, IonMailOpenOutline, BootstrapPencil, BootstrapPeople, BootstrapCameraVideo, OctLocation
     }),
   ],
 

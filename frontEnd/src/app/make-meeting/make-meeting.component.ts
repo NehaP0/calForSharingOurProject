@@ -5,6 +5,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Validators, FormControl, FormGroup, FormBuilder } from '@angular/forms';
 import { APIService } from '../api.service';
 
+
 @Component({
   selector: 'app-make-meeting',
   templateUrl: './make-meeting.component.html',
@@ -24,13 +25,13 @@ export class MakeMeetingComponent implements OnInit {
   evDurMins = localStorage.getItem('evDurMins');
   // selectedTimeZone = localStorage.getItem('selectedTimeZone')
   selectedTimeZone = 'Indian Standard Time'
-  startTime = localStorage.getItem('oneTime');
+  startTime = localStorage.getItem('oneTime') || "";
   startTimeWdTimeZoneOffset = localStorage.getItem('startTimeWdTimeZoneOffset')
-  endTime = localStorage.getItem('endTime');
+  endTime = localStorage.getItem('endTime') || "";
   endTimeWdTimeZoneOffset = localStorage.getItem('endTimeWdTimeZoneOffset')
   day = localStorage.getItem('day');
   month = localStorage.getItem('month');
-  date = localStorage.getItem('date');
+  date = localStorage.getItem('date') || "";
   contactsArr = JSON.parse(localStorage.getItem('contactsArr'))
   cloduraBrandingReq = JSON.parse(localStorage.getItem('cloduraBrandingReq'))
 
