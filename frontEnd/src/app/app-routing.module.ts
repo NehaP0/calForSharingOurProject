@@ -11,14 +11,15 @@ import { HomeComponent } from './home/home.component';
 
 
 const routes: Routes = [
-  {path: '/', component : HomeComponent},
+  {path: '', component : CreateMeetingComponentComponent},
   { path: 'create', component: CreateMeetingComponentComponent },
   { path: 'makeMeeting', component: MakeMeetingComponent },
   {path : 'thankyou', component : ThankyouPageComponent},
   {path : 'cancelMeet', component : CancellationPageComponent},
   {path : 'cancelConfirmed', component : CancelConfirmedComponent},
   {path : 'oops', component : OopsComponent},
-  {path: 'rescheduling', component : ReschedulingComponent}
+  {path: 'rescheduling', component : ReschedulingComponent},
+  // { path: '**', redirectTo: 'cancelMeet', pathMatch: 'full' }
 ];
 
 @NgModule({
