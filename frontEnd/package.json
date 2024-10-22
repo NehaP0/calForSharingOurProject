@@ -13,6 +13,7 @@
     "@ag-grid-community/angular": "^26.2.0",
     "@ag-grid-community/core": "^26.2.0",
     "@amplitude/analytics-browser": "^1.8.0",
+    "@angular-devkit/build-angular": "^13.0.3",
     "@angular-slider/ngx-slider": "^2.0.3",
     "@angular/animations": "^13.0.3",
     "@angular/cdk": "^13.0.3",
@@ -194,7 +195,6 @@
   "devDependencies": {
     "@angular-builders/custom-webpack": "^14.1.0",
     "@angular-devkit/architect": "^0.1300.3",
-    "@angular-devkit/build-angular": "^13.3.11",
     "@angular-devkit/core": "^13.0.3",
     "@angular/cli": "^13.3.11",
     "@angular/compiler": "^13.0.3",
