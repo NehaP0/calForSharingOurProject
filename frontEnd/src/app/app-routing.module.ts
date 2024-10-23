@@ -19,7 +19,7 @@ const routes: Routes = [
   {path : 'cancelConfirmed', component : CancelConfirmedComponent},
   {path : 'oops', component : OopsComponent},
   {path: 'rescheduling', component : ReschedulingComponent},
-  // { path: '**', redirectTo: 'cancelMeet', pathMatch: 'full' }
+  { path: '**', redirectTo: 'cancelMeet', pathMatch: 'full' }
 ];
 
 @NgModule({
