@@ -1,0 +1,87 @@
+<div id="main">
+  <div *ngIf="wait" id="waitBox">
+    <h3>Please wait...</h3>
+  </div>
+
+  <div id="content" [ngStyle]="{'background-color': backGroundcolor, 'color':textColor}">
+
+    <div class="hl"></div>
+    <div class="heroSection">
+      <div id="leftDiv">
+        <button class="backBtn"> &#8826; </button>
+        <p>{{reschedVariables.calOwnerNameForResched}}</p>
+        <p id="eventName">{{ reschedVariables.evNameForResched }}</p>
+
+        <div>
+          <div  class="newTime">
+            <!-- <div class="vl"></div> -->
+
+            <p class="leftSideDetails">
+              <i class="feather icon-clock"></i><span *ngIf="evDurHrs"> {{ evDurHrs }} hrs</span>
+              <span *ngIf="evDurMins"> {{ evDurMins }} mins</span>
+            </p>
+            <p class="leftSideDetails">
+              <i class="feather icon-calendar"></i>
+              {{newStTime}}
+              -
+              {{newEndTime}},
+              {{newStDateDay}}
+            </p>
+            <p class="leftSideDetails">
+              <i class="feather icon-globe"></i><span> {{selectedTimeZone}}</span>
+            </p>
+          </div>
+
+          <div class="formerTime">
+            <p>Former Time</p>
+            <p class="leftSideDetails strikeThrough">
+              <i class="feather icon-calendar"></i>
+              {{oldStTime}}
+              -
+              {{oldEndTime}},
+              {{oldStDateDay}}
+            </p>
+            <p class="leftSideDetails strikeThrough">
+              <i class="feather icon-globe"></i><span> {{selectedTimeZone}}</span>
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div id="rightDiv">
+        <h3>Enter Details</h3>
+
+        <form [formGroup]="userForm" (ngSubmit)="formSubmit()">
+          <label for="Name">Invitee Name</label>
+          <input type="text" id="Name" placeholder={{reschedVariables.inviteeNameForResched}} readonly/>
+
+
+          <label for="Email">Your Email </label>
+          <input placeholder={{reschedVariables.emailIdForResched}} type="email" id="Email" readonly />
+
+
+
+          <div id="addGuestsDiv">
+            <!-- <button id="addGuests" *ngIf="!addGuests" (click)="addguests()" type="button" >
+              + Add Guests
+            </button> -->
+            <div id="guests">
+              <label for="guests">Guest Email(s)</label>
+              <input placeholder="Add guest email"  type="text" id="Guests" formControlName="guests" />
+            </div>
+          </div>
+
+          <div id="reason">
+              <label for="reason">Reason for change</label>
+              <input type="text" id="Reason" formControlName="reason" />
+          </div>
+
+
+          <button id="scheduleEvent" type="submit"
+            [ngStyle]="{'background-color':btnAndLinkColor, 'border':'1px solid' +  btnAndLinkColor}">Schedule
+            Event</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

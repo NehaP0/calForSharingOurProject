@@ -41,6 +41,9 @@ import { ReschedulingComponent } from './rescheduling/rescheduling.component';
 import { ThankyouPageComponent } from './thankyou-page/thankyou-page.component';
 import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
+import { EmailResponseThankyouComponent } from './email-response-thankyou/email-response-thankyou.component';
+import { ReschedulingFormComponent } from './rescheduling-form/rescheduling-form.component';
+import { ThankyouRescheduledComponent } from './thankyou-rescheduled/thankyou-rescheduled.component';
 
 // import { MakeMeetingComponent } from './make-meeting/make-meeting.component';
 // import { ThankyouPageComponent } from './thankyou-page/thankyou-page.component';
@@ -61,6 +64,9 @@ import { AppRoutingModule } from './app-routing.module';
     CancelConfirmedComponent,
     OopsComponent,
     ReschedulingComponent,
+    EmailResponseThankyouComponent,
+    ReschedulingFormComponent,
+    ThankyouRescheduledComponent,
   ],
   imports: [
     CommonModule,

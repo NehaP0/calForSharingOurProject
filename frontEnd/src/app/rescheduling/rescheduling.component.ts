@@ -14,22 +14,24 @@ import { APIService } from '../api.service';
   styleUrl: './rescheduling.component.css'
 })
 export class ReschedulingComponent implements OnInit {
-  currentDate: Date;
+  currentDate: Date ;
   currentformattedDate
 
-  user;
+  userDeets;
+  userEvSchemaDeets;
   userName: string = '';
   emailId: string = '';
-  loggedInName = localStorage.getItem("userLoggedInName" || "")
+  loggedInName = ""
   evId = ""
   userId = ""
-
+  contactsArr = []
   evName = ""
   evDurHrs = 0
   evDurMins = 0
-  evLocation = localStorage.getItem("eventLocation")
+  evLocation = "Google Meet"
   allowInviteesToAddGuests = true
   evType = ""
+  // meetingArray : any[] = [];
   formattedMeetingsHide: object[] = [];
   timeSelected = "";
   eventName = "";
@@ -42,19 +44,27 @@ export class ReschedulingComponent implements OnInit {
   displayRemainingSpotsOnBookingPageGrp
   lastNameRequired
   cloduraBrandingReq
-
-  emailIdOfWhoseCalendar = ""
-  whoRescheduled = ""
+  meetStartTime
+  meetEndTime
+  meetId
+  inviteeEmailForReshced
 
   displayTimeDiv = false;
   dateSelected = ""
   selectedDayName = ""
-  selectedMonth = ""
   userAvailaibleArray = []
+  userAvailaibleArray24 = []
+  userAvailaibleArray12 = []
   Events: any[] = [];
   allTimesArray = []
   showNext = false
   showNextFor = ""
+  showingIn24hr: Boolean
+
+  isFormerTimeInPast
+
+  previousTimeZone = 'Asia/Calcutta';
+  selectedTimeZone = 'Asia/Calcutta'
 
   workingHrStart = ""
   workingHrEnd = ""
@@ -67,8 +77,10 @@ export class ReschedulingComponent implements OnInit {
   image = ""
   reqEventObj = {}
   API_URL = 'http://localhost:3000';
-  meetId = ''
-
+  months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  years = Array.from({ length: 10 }, (_, i) => new Date().getFullYear() - i); // Last 10 years
+  selectedMonth = new Date().toLocaleString('default', { month: 'long' });
+  selectedYear = new Date().getFullYear();
 
 
   // hardcoding--------
@@ -105,11 +117,12 @@ export class ReschedulingComponent implements OnInit {
 
   calendarOptions: CalendarOptions = {
     initialView: 'dayGridMonth',
-    plugins: [dayGridPlugin, interactionPlugin],
+    timeZone: this.selectedTimeZone,
+    plugins: [dayGridPlugin, interactionPlugin, momentPlugin, momentTimezonePlugin],
     headerToolbar: {
-      left: 'prev,next',
+      left: 'prev',
       center: 'title',
-      right: '',
+      right: 'next',
     },
     weekends: true,
     editable: true,
@@ -131,142 +144,262 @@ export class ReschedulingComponent implements OnInit {
   eventLink = ''
   redirectTo = {}
 
+  oldStTime = ''
+  oldEndTime = ''
+  inviteeName = ''
+  guests = []
+
+
   // NEW END====
 
-  constructor(private route: ActivatedRoute, private router: Router, private datePipe: DatePipe) {}
+  constructor(private apiService: APIService, private route: ActivatedRoute, private router: Router, private datePipe: DatePipe, private http: HttpClient) { }
 
   private subscription: Subscription;
 
   ngOnInit() {
+
+    console.log();
+
     // -----taking name and email id from query paramaters----
-
     this.route.queryParams.subscribe(params => {
-      console.log("params ", params);
-
-      this.emailIdOfWhoseCalendar = params['whoseCalendar']
-      console.log('Create Meeting Component initialized ', this.emailIdOfWhoseCalendar);
-
-      this.whoRescheduled = params['whoRescheduled']
-      console.log('whoRescheduled ', this.whoRescheduled);
-
+      console.log('Reschedule Meeting Component initialized ',
+        params['uidOfCalOwner'], params['whoRescheduled'], params['eventId'], params['meetId'],params['start'],params['end']
+      );
+      this.userId = params['uidOfCalOwner']
       this.evId = params['eventId']
-      console.log('evId ', this.evId);
-
+      this.meetStartTime = params['start']
       this.meetId = params['meetId']
-      console.log('meetId ', this.meetId);
+      this.meetEndTime = params['end']
+      this.inviteeEmailForReshced = params['whoRescheduled']
+
+      console.log('this.meetId ', this.meetId);
 
 
-      this.getParticularUserByEmailId(this.emailIdOfWhoseCalendar)
+      // this.evLinkEnd = params['evL']
+      // localStorage.setItem("eventId", this.evId)
+
+
+
+      this.getParticularUserByUid(this.userId)
+      this.getParticularUserEvSchema(this.userId)
+      this.getParticularMeet(this.meetId)
     })
 
     setTimeout(() => {
       this.calendarOptions = {
         initialView: 'dayGridMonth',
+        // events: this.Events, //commented so that events are not shown on calendar
         dateClick: this.onDateClick.bind(this),
         dayCellContent: this.theDayCellContent.bind(this),
       }
     }, 3000);
 
+  }
+
+  async getParticularMeet(meetId){
+    await this.apiService.getParticularMeeting(meetId)
+
+    this.subscription = this.apiService.particularMeeting$.subscribe((meet) => {
+      console.log('meet in ts :', meet);
+
+      this.oldStTime = meet['start']
+      this.oldEndTime = meet['end']
+      this.inviteeName = `${meet['user']} ${meet['userSurname']}`
+      this.guests = meet['userEmail']
+    })
 
 
   }
 
-  async getParticularUserByEmailId(emailIdOfWhoseCalendar) {
-    console.log("getParticularUserByEmailId is called");
+  async getParticularUserByUid(uid) {
+    console.log("getParticularUserByUid is called");
 
-    // this.user = await this.apiService.getParticularUser(emailIdOfWhoseCalendar)
-    console.log("user ", this.user);
+    this.userDeets = await this.apiService.getParticularUserByUid(uid)
+    console.log("user deets ", this.userDeets);
 
-    this.nameWhoseCalendar = this.user['name']
-    this.emailId = this.user['emailID']
+    this.nameWhoseCalendar = this.userDeets['name']
+    this.emailId = this.userDeets['emailId']
     localStorage.setItem("userEmailId", this.emailId)
-    // this.apiService.setUserName(this.nameWhoseCalendar);
-    // this.apiService.setUserEmailId(this.emailId);
-
-    this.image = this.user['profileImage'];
-    console.log('image in ts :', this.image);
-
-    this.avatar = `${this.API_URL}/${this.user['profileImage']}`
-    console.log("avatar ", this.avatar);
+    this.apiService.setUserName(this.nameWhoseCalendar);
+    this.loggedInName = this.nameWhoseCalendar
+    this.apiService.setUserEmailId(this.emailId);
 
 
-    this.cloduraBrandingReq = this.user.cloduraBranding;
-    console.log("this.cloduraBrandingReq ", this.cloduraBrandingReq);
-
-    for (let i = 0; i < this.user.eventLinks.length; i++) {
-      if (this.user.eventLinks[i].linkEnd == this.evLinkEnd) {
-        this.evId = this.user.eventLinks[i].evId
-        localStorage.setItem("eventId", this.evId)
-        break;
-      }
-    }
-
-
-    // this.apiService.getSelectedEvent(this.evId, this.emailId)
+    this.apiService.getSelectedEvent(this.evId)
     this.assignValuesToEventDeets()
 
     // Fetch meetings
-    // this.apiService.getReqDetails(this.userId, this.evId)
+    this.apiService.setReqDetails(this.nameWhoseCalendar, this.emailId, this.image, this.evType, this.evName, this.evDurMins, this.evDurHrs, this.allowInviteesToAddGuests)
 
 
-    // this.apiService.getMeetingsHide(this.emailId);
-    // this.apiService.getSelectedUsersAvailaibilityObj()
+    this.apiService.getMeetingsHide(this.userId);
+    this.apiService.getSelectedUsersAvailaibilityObj(this.userId)
 
-    // this.subscription = this.apiService.formattedMeetingsHide$.subscribe((formattedMeetingsHide) => {
-    //   console.log('Formatted Meetings Hide in ts :', formattedMeetingsHide);
-    //   this.formattedMeetingsHide = formattedMeetingsHide;
-    //   this.Events = formattedMeetingsHide;
-    //   console.log("Events ", this.Events);
-    // });
-    // this.subscription = this.apiService.selectedUserAvailabilityObj$.subscribe((avObj) => {
-    //   this.selectedUserAvObj = avObj
-    //   console.log("selectedUserAvObj ", this.selectedUserAvObj);
+    this.subscription = this.apiService.formattedMeetingsHide$.subscribe((formattedMeetingsHide) => {
+      console.log('Formatted Meetings Hide in ts :', formattedMeetingsHide);
+      this.formattedMeetingsHide = formattedMeetingsHide;
+      this.Events = formattedMeetingsHide;
+
+      // to change this.isFormerTimeInPast to true or false
+      for(let i=0; i<formattedMeetingsHide.length; i++){
+
+        if(formattedMeetingsHide[i].Id == this.meetId){
+
+          const today = new Date();
+
+          const day = String(today.getDate()).padStart(2, '0');
+          const month = String(today.getMonth() + 1).padStart(2, '0'); // Months are zero-based
+          const year = today.getFullYear();
+          let todaysdate = `${year}-${month}-${day}`; // e.g., "2024-07-25"
+
+          const hours = String(today.getHours()).padStart(2, '0');
+          const minutes = String(today.getMinutes()).padStart(2, '0');
+          const seconds = String(today.getSeconds()).padStart(2, '0');
+          let currentTime = `${hours}:${minutes}:${seconds}`;
+
+          const currentformattedDateTime = `${todaysdate}T${currentTime}+05:30`
+          console.log("here ",currentformattedDateTime);
+
+          console.log(formattedMeetingsHide[i].start <= `${currentformattedDateTime}`);
+
+          if(formattedMeetingsHide[i].start <= `${currentformattedDateTime}`){
+            this.isFormerTimeInPast = true
+          }
+          break;
+        }
+
+      }
 
 
-    //   this.duration = this.selectedUserAvObj["duration"]
-    //   console.log("duration ", this.selectedUserAvObj["duration"]);
+      //removing former meeting time meet from events, so that former time is also visible on screen
+      this.Events = formattedMeetingsHide.filter((meet)=>{
+        return meet.Id != this.meetId
+      })
 
-    //   this.workingHrsAsPerDays = this.selectedUserAvObj["workingHrs"]
-    //   console.log("workingHrsAsPerDays ", this.selectedUserAvObj["workingHrs"]);
-
-
-    //   this.workingDays = this.selectedUserAvObj["workingDays"]
-    //   console.log("workingDays ", this.selectedUserAvObj["workingDays"]);
-
-    //   this.nonWorkingDays = this.selectedUserAvObj["nonWorkingDays"]
-    //   console.log("nonWorkingDays ", this.selectedUserAvObj["nonWorkingDays"]);
-
-    // })
+      console.log("Events ", this.Events);
+    });
+    this.subscription = this.apiService.selectedUserAvailabilityObj$.subscribe((avObj) => {
+      this.selectedUserAvObj = avObj
+      console.log("selectedUserAvObj ", this.selectedUserAvObj);
 
 
+      this.duration = this.selectedUserAvObj["duration"]
+      console.log("duration ", this.selectedUserAvObj["duration"]);
+
+      this.workingHrsAsPerDays = this.selectedUserAvObj["workingHrs"]
+      console.log("workingHrsAsPerDays ", this.selectedUserAvObj["workingHrs"]);
+
+
+      this.workingDays = this.selectedUserAvObj["workingDays"]
+      console.log("workingDays ", this.selectedUserAvObj["workingDays"]);
+
+      this.nonWorkingDays = this.selectedUserAvObj["nonWorkingDays"]
+      console.log("nonWorkingDays ", this.selectedUserAvObj["nonWorkingDays"]);
+
+      // console.log("duration ",this.duration);
+    })
     this.getAllEventEditings()
+  }
+
+  async getParticularUserEvSchema(uid) {
+
+    this.userEvSchemaDeets = await this.apiService.getParticularUserEvSchemaDeets(uid)
+
+
+
+    this.contactsArr = this.userEvSchemaDeets['contacts']
+    localStorage.setItem('contactsArr', JSON.stringify(this.contactsArr))
+
+    this.image = this.userEvSchemaDeets['profileImage'];
+    console.log('image in ts :', this.image);
+
+    this.avatar = `${this.API_URL}/${this.userEvSchemaDeets['profileImage']}` //change later
+    console.log("avatar ", this.avatar);
+
+    this.cloduraBrandingReq = this.userEvSchemaDeets['cloduraBranding'];
+    console.log("this.cloduraBrandingReq ", this.cloduraBrandingReq);
+    localStorage.setItem('cloduraBrandingReq', JSON.stringify(this.cloduraBrandingReq))
+  }
+
+
+
+  to12HourFormat(timeObj, evType){
+    console.log("timeObj ", timeObj);
+
+    const [hours, minutes] = timeObj['time'].split(':').map(Number);
+    const suffix = hours >= 12 ? 'pm' : 'am';
+    const hours12 = hours % 12 || 12; // Convert '0' to '12' for midnight
+
+    if(evType == 'one-one'){
+      return {time : `${hours12.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')} ${suffix}`, formerTime : timeObj['formerTime']};
+    }
+    else{
+      return `${hours12.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')} ${suffix}`
+
+    }
+  }
+
+  convertTo12HourFormat(): void {
+    console.log('convertTo12HourFormat called');
+
+    if (this.evType == 'One-on-One') {
+      this.userAvailaibleArray12 = this.userAvailaibleArray24.map(timeObj => this.to12HourFormat(timeObj, 'one-one'));
+      console.log(" this.userAvailaibleArray12 ", this.userAvailaibleArray12);
+      console.log("userAvailaibleArray24 ", this.userAvailaibleArray24);
+    }
+    // {time: '09:00', remainingBookings: 2}
+    else {
+      this.userAvailaibleArray12 = this.userAvailaibleArray24.map((item) => {
+        return {
+          time: this.to12HourFormat(item, 'grp'),
+          remainingBookings: item['remainingBookings'],
+          formerTime : item['formerTime']
+        }
+      }
+      )
+      console.log(" this.userAvailaibleArray12 ", this.userAvailaibleArray12);
+      console.log("userAvailaibleArray24 ", this.userAvailaibleArray24);
+    }
+
+
+    if (this.showingIn24hr) {
+      this.userAvailaibleArray = this.userAvailaibleArray24
+    }
+    else {
+      this.userAvailaibleArray = this.userAvailaibleArray12;
+    }
+    console.log('since ', this.showingIn24hr, 'so ', this.userAvailaibleArray);
+
 
 
   }
+
 
   assignValuesToEventDeets() {
     console.log("the selected evId and emailIdis ", this.evId, this.emailId);
-    // this.subscription = this.apiService.reqEvent$.subscribe((reqEventObj) => {
-    //   this.reqEventObj = reqEventObj
-    //   console.log("reqEventObj ", reqEventObj);
-    //   if (Object.keys(reqEventObj).length > 0) { // i.e. object is not empty
-    //     console.log("got reqEventObj ", reqEventObj);
-    //     this.evName = reqEventObj["evName"]
-    //     this.evDurHrs = reqEventObj["evDuration"]["hrs"]
-    //     this.evDurMins = reqEventObj["evDuration"]["minutes"]
-    //     this.evLocation = reqEventObj["evLocation"]
-    //     this.allowInviteesToAddGuests = reqEventObj["allowInviteesToAddGuests"]
-    //     this.evType = reqEventObj["evType"]
-    //     this.lastNameRequired = reqEventObj["surnameReq"]
-    //     this.redirectTo = reqEventObj["redirectTo"]
+    this.subscription = this.apiService.reqEvent$.subscribe((reqEventObj) => {
+      this.reqEventObj = reqEventObj
+      console.log("reqEventObj ", reqEventObj);
+      if (Object.keys(reqEventObj).length > 0) { // i.e. object is not empty
+        console.log("got reqEventObj ", reqEventObj);
+        this.evName = reqEventObj["evName"]
+        this.evDurHrs = reqEventObj["evDuration"]["hrs"]
+        this.evDurMins = reqEventObj["evDuration"]["minutes"]
+        this.evLocation = reqEventObj["evLocation"]
+        this.allowInviteesToAddGuests = reqEventObj["allowInviteesToAddGuests"]
+        this.evType = reqEventObj["evType"]
+        this.lastNameRequired = reqEventObj["surnameReq"]
+        this.redirectTo = reqEventObj["redirectTo"]
 
-    //     if (reqEventObj["evType"] == "Group") {
-    //       this.noOfBookingsAllowedForAParticularTimeInGrpEvent = reqEventObj["maxInviteesPerEventForGrpEvent"]
-    //       this.displayRemainingSpotsOnBookingPageGrp = reqEventObj["displayRemainingSpotsOnBookingPageGrp"]
-    //     }
-    //   }
-    // })
+        if (reqEventObj["evType"] == "Group") {
+          this.noOfBookingsAllowedForAParticularTimeInGrpEvent = reqEventObj["maxInviteesPerEventForGrpEvent"]
+          this.displayRemainingSpotsOnBookingPageGrp = reqEventObj["displayRemainingSpotsOnBookingPageGrp"]
+        }
+      }
+    })
   }
+
+
 
   // =======getsAllEventEditedOptions starts==================
 
@@ -274,30 +407,43 @@ export class ReschedulingComponent implements OnInit {
 
     console.log("getAllEventEditings called");
 
-    // this.subscription = this.apiService.reqEvent$.subscribe((reqEventObj) => {
-    //   this.reqEventObj = reqEventObj
-    //   if (Object.keys(reqEventObj).length > 0) { // i.e. object is not empty
-    //     console.log("got reqEventObj ", reqEventObj);
+    this.subscription = this.apiService.reqEvent$.subscribe((reqEventObj) => {
+      this.reqEventObj = reqEventObj
+      if (Object.keys(reqEventObj).length > 0) { // i.e. object is not empty
+        console.log("got reqEventObj ", reqEventObj);
 
-    //     console.log("wanted ", reqEventObj["evDuration"]["minutes"]);
-
-
-    //     this.eventN = reqEventObj["evName"]
-    //     this.evDurHrs = reqEventObj["evDuration"]["hrs"]
-    //     this.evDurMins = reqEventObj["evDuration"]["minutes"]
-    //     this.eventLink = this.eventN
-    //     this.backGroundcolor = reqEventObj['bgClr']
-    //     this.textColor = reqEventObj['txtClr']
-    //     this.btnAndLinkColor = reqEventObj['btnAndLnkClr']
-
-    //     localStorage.setItem("backGroundcolor", this.backGroundcolor)
-    //     localStorage.setItem("textColor", this.textColor)
-    //     localStorage.setItem("btnAndLinkColor", this.btnAndLinkColor)
+        console.log("wanted ", reqEventObj["evDuration"]["minutes"]);
 
 
-    //     // ===========================
-    //   }
-    // })
+        this.eventN = reqEventObj["evName"]
+        this.evDurHrs = reqEventObj["evDuration"]["hrs"]
+        this.evDurMins = reqEventObj["evDuration"]["minutes"]
+        this.eventLink = this.eventN
+        this.backGroundcolor = reqEventObj['bgClr']
+        this.textColor = reqEventObj['txtClr']
+        this.btnAndLinkColor = reqEventObj['btnAndLnkClr']
+
+
+
+        console.log("since ", reqEventObj['timeFormat']);
+
+        if (reqEventObj['timeFormat'] == "24hr") {
+          this.showingIn24hr = true
+        }
+        else {
+          this.showingIn24hr = false
+        }
+        console.log("hence ", this.showingIn24hr);
+
+
+        localStorage.setItem("backGroundcolor", this.backGroundcolor)
+        localStorage.setItem("textColor", this.textColor)
+        localStorage.setItem("btnAndLinkColor", this.btnAndLinkColor)
+        localStorage.setItem("timeFormat", reqEventObj['timeFormat'])
+
+        // ===========================
+      }
+    })
 
     setTimeout(() => {
       this.allowInviteesToScheduleOn = this.reqEventObj["whenCanInviteesSchedule"] //making allowInviteesToScheduleOn object
@@ -353,6 +499,7 @@ export class ReschedulingComponent implements OnInit {
 
     const dayOfWeek = info.date.getDay();
     const date = info.date.getDate();
+    // console.log(dayOfWeek);
 
     console.log("textColor ", this.textColor);
     console.log("btnAndLinkColor ", this.btnAndLinkColor);
@@ -360,9 +507,11 @@ export class ReschedulingComponent implements OnInit {
 
 
     for (let i = 0; i < this.nonWorkingDays.length; i++) {
+      console.log("this.nonWorkingDays ", this.nonWorkingDays);
+
       if (dayOfWeek === this.nonWorkingDays[i]) {
         if (this.textColor == 'black' || this.textColor == '#000000') {
-          return { html: `<div style="color: grey">` + date + '</div>' };
+          return { html: `<div style="color: grey;">` + date + '</div>' };
         }
         else {
           return { html: `<div style="color: ${this.textColor}">` + date + '</div>' };
@@ -378,24 +527,47 @@ export class ReschedulingComponent implements OnInit {
       }
     }
     else {
-      return { html: `<div style="color: ${this.btnAndLinkColor}; font-weight: bold;">` + date + '</div>' };
+      return { html: `<div style="color: ${this.btnAndLinkColor}; font-weight: bold">` + date + '</div>' };
 
     }
 
 
 
   }
+  // ----------theDayCellContent ends------------
+
+
 
 
   // ---------------onDateClick new starts---------------
 
   onDateClick(res: any) {
 
+
     this.displayTimeDiv = true
     console.log('Clicked on date : ' + res.dateStr); //2024-02-13
 
 
     this.dateSelected = res.dateStr
+
+
+    // todays date and time starts
+    let todaysdateIs = new Date();
+    console.log(todaysdateIs);
+    const day = String(todaysdateIs.getDate()).padStart(2, '0');
+    const month = String(todaysdateIs.getMonth() + 1).padStart(2, '0'); // Months are zero-based
+    const year = todaysdateIs.getFullYear();
+    let todaysdate = `${year}-${month}-${day}`; // e.g., "2024-07-25"
+    console.log("todaysdate == this.dateSelected", todaysdate == this.dateSelected);
+
+
+    const now = new Date();
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    let currentTime = `${hours}:${minutes}`;
+    console.log("currentTime ", currentTime);
+
+    // todays date and time ends
 
     let returnOffindHowManyEventsAreAlreadyBookedFnctn;
     console.log("this.noOfMeetingsAllowedPerDay ", this.noOfMeetingsAllowedPerDay);
@@ -497,10 +669,13 @@ export class ReschedulingComponent implements OnInit {
 
         console.log(this.selectedDayName, this.selectedMonth, this.dateSelected);
 
+
+
         const selectedDate = res.dateStr;
-        // this.subscription = this.apiService.userUnavailabelOnArray$.subscribe((userUnavailabelOnArray$) => {
-        //   console.log("array ", userUnavailabelOnArray$);
-        // });
+        this.subscription = this.apiService.userUnavailabelOnArray$.subscribe((userUnavailabelOnArray$) => {
+
+          console.log("array ", userUnavailabelOnArray$);
+        });
 
         let selectedNonWorkingDay = false
         for (let i = 0; i < this.nonWorkingDays.length; i++) {
@@ -515,7 +690,8 @@ export class ReschedulingComponent implements OnInit {
 
         if (selectedNonWorkingDay == false) {
           this.displayTimeDiv = true;
-          this.dateSelected = res.dateTimeStr
+          this.dateSelected = res.dateStr
+
 
           for (let key in this.workingHrsAsPerDays) {
             if (selectedDay == key) {
@@ -553,8 +729,23 @@ export class ReschedulingComponent implements OnInit {
 
           console.log(workingStartHours <= workingEndHours);
           console.log(typeof workingEndHours);
+
+
+          // allTimesArray = ['09:00:00']
+
+          //9               <    17
           while (workingStartHours < workingEndHours) {
             console.log("inside while ");
+
+            // console.log("workingStartHours 278 ",workingStartHours, typeof workingStartHours);
+            // console.log("workingEndHours 279 ",workingEndHours, typeof workingEndHours);
+            // console.log("workingStartMinutes 280 ",workingStartMinutes, typeof workingStartMinutes);
+            // console.log("workingEndMinutes 281 ",workingEndMinutes, typeof workingEndMinutes);
+
+            // console.log("this.duration.minutes 283 ",this.duration["minutes"], typeof this.duration["minutes"]);
+            // console.log("this.duration 284 ",this.duration, typeof this.duration);
+
+
             workingStartHours = workingStartHours + Number(this.duration.hrs)
             workingStartMinutes = workingStartMinutes + Number(this.duration.minutes)
             console.log("workingStartHours 287 ", workingStartHours, typeof workingStartHours);
@@ -564,20 +755,28 @@ export class ReschedulingComponent implements OnInit {
               workingStartHours = workingStartHours + Math.floor(workingStartMinutes / 60)
               workingStartMinutes = workingStartMinutes - 60 * (Math.floor(workingStartMinutes / 60))
             }
+
+            // console.log("workingStartHours 295 ",workingStartHours, typeof workingStartHours);
+            // console.log("workingStartMinutes 296 ",workingStartMinutes, typeof workingStartMinutes);
+
+            // console.log("workingStartHours ",workingStartHours,"workingStartMinutes ", workingStartMinutes);
+
+
+            //buulding timestring properly because it is a string
             if (workingStartHours < 10) {
               if (workingStartMinutes < 10) {
-                timeStr = `0${workingStartHours}:0${workingStartMinutes}:00`
+                timeStr = `0${workingStartHours}:0${workingStartMinutes}`
               }
               else {
-                timeStr = `0${workingStartHours}:${workingStartMinutes}:00`
+                timeStr = `0${workingStartHours}:${workingStartMinutes}`
               }
             }
             else {
               if (workingStartMinutes < 10) {
-                timeStr = `${workingStartHours}:0${workingStartMinutes}:00`
+                timeStr = `${workingStartHours}:0${workingStartMinutes}`
               }
               else {
-                timeStr = `${workingStartHours}:${workingStartMinutes}:00`
+                timeStr = `${workingStartHours}:${workingStartMinutes}`
               }
             }
 
@@ -588,6 +787,10 @@ export class ReschedulingComponent implements OnInit {
           console.log("allTimesArray ", allTimesArray);
           this.allTimesArray = allTimesArray
 
+
+
+          // let allTimesArray = ['10:00:00', '10:30:00', '11:00:00', '11:30:00', '12:00:00', '12:30:00', '01:00:00', '01:30:00', '02:00:00', '02:30:00', '03:00:00', '03:30:00', '04:00:00', '04:30:00', '05:00:00', '05:30:00', '06:00:00', '06:30:00']
+
           let usersBookedTimes = []
           let usersBookedEndTimes = []
           let usersBookedStartTimesForThisEvent = []
@@ -597,12 +800,19 @@ export class ReschedulingComponent implements OnInit {
 
           console.log("Checking Events after date click ", this.Events);
 
+          //  [ {Id: "65c9c03f0766a7f15e54e04a",end: "2019-01-18T09:30:00+05:30",start: "2019-01-18T09:00:00+05:30"},
+          // {Id: "65c9c03f0766a7f15e54e04a",end: "2019-01-19T09:30:00+05:30",start: "2019-01-19T09:00:00+05:30"}]
+
+
+
           console.log("this.Events ", this.Events);
 
 
           for (let i = 0; i < this.Events.length; i++) {
             let obj = this.Events[i]
             console.log("obj ", obj);
+            // {Id: '6720d9dcbd1f1401f649730a', start: '2024-11-04T13:00:00+05:30', end: '2024-11-04T13:30:00+05:30'}
+
 
             eventDate = obj['start'].split('T')[0] //2019-01-18
             console.log("eventDate ", eventDate);
@@ -618,6 +828,7 @@ export class ReschedulingComponent implements OnInit {
                     let bookedForWhichEvId = obj['bookedForWhichEvId']
                     let eventStartTime = obj['start'].split('T')[1] //09:00:00
                     let eventEndTime = obj['end'].split('T')[1]
+                    // let eventStartTime = time.split('+')[0] //09:00:00
                     console.log("eventStartTime ", eventStartTime);
                     console.log("eventEndTime ", eventEndTime);
 
@@ -627,6 +838,7 @@ export class ReschedulingComponent implements OnInit {
                   else {
                     let eventStartTime = obj['start'].split('T')[1] //09:00:00
                     let eventEndTime = obj['end'].split('T')[1]
+                    // let eventStartTime = time.split('+')[0] //09:00:00
                     console.log("eventStartTime ", eventStartTime);
                     console.log("eventEndTime ", eventEndTime);
 
@@ -638,6 +850,7 @@ export class ReschedulingComponent implements OnInit {
               else {
                 let eventStartTime = obj['start'].split('T')[1] //09:00:00
                 let eventEndTime = obj['end'].split('T')[1]
+                // let eventStartTime = time.split('+')[0] //09:00:00
                 console.log("eventStartTime ", eventStartTime);
                 console.log("eventEndTime ", eventEndTime);
 
@@ -648,30 +861,29 @@ export class ReschedulingComponent implements OnInit {
             }
           }
           console.log("usersBookedTimes ", usersBookedTimes);
-          console.log("usersBookedEndTimes ", usersBookedEndTimes);
 
-          // ===function to make userAvailaibleArray array==========================
 
           console.log("evType is ", this.evType);
 
-          if (this.evType == "One-on-One") {
-            function filterBookedTimes(allTimesArray, userBookedStartTimesArray, userBookedEndTimesArray) {
-              // Function to convert time string "HH:MM:SS" to seconds since midnight
-              function timeToSeconds(time) {
-                let [hours, minutes, seconds] = time.split(':').map(Number);
-                return hours * 3600 + minutes * 60 + seconds;
 
+
+          // if (this.evType == "One-on-One") {
+            function filterBookedTimes(allTimesArray, userBookedStartTimesArray, userBookedEndTimesArray) {
+              // Function to convert time string "HH:MM" to minutes since midnight
+              function timeToMinutes(time) {
+                let [hours, minutes] = time.split(':').map(Number);
+                return hours * 60 + minutes;
               }
 
-              // Convert all times to seconds
-              let allTimesInSeconds = allTimesArray.map(timeToSeconds);
-              let bookedStartTimesInSeconds = userBookedStartTimesArray.map(item => timeToSeconds(item.eventStartTime));
-              let bookedEndTimesInSeconds = userBookedEndTimesArray.map(item => timeToSeconds(item.eventEndTime));
+              // Convert all times to minutes
+              let allTimesInMinutes = allTimesArray.map(timeToMinutes);
+              let bookedStartTimesInMinutes = userBookedStartTimesArray.map(item => timeToMinutes(item.eventStartTime));
+              let bookedEndTimesInMinutes = userBookedEndTimesArray.map(item => timeToMinutes(item.eventEndTime));
 
               // Function to check if a time is within any booked interval
               function isBooked(time) {
-                for (let i = 0; i < bookedStartTimesInSeconds.length; i++) {
-                  if (time >= bookedStartTimesInSeconds[i] && time < bookedEndTimesInSeconds[i]) {
+                for (let i = 0; i < bookedStartTimesInMinutes.length; i++) {
+                  if (time >= bookedStartTimesInMinutes[i] && time < bookedEndTimesInMinutes[i]) {
                     return true;
                   }
                 }
@@ -679,117 +891,73 @@ export class ReschedulingComponent implements OnInit {
               }
 
               // Filter out the times that are within the booked intervals
-              let filteredTimesInSeconds = allTimesInSeconds.filter(time => !isBooked(time));
+              let filteredTimesInMinutes = allTimesInMinutes.filter(time => !isBooked(time));
 
-              // Convert the filtered times back to "HH:MM:SS" format
-              function secondsToTime(seconds) {
-                let hours = Math.floor(seconds / 3600).toString().padStart(2, '0');
-                let mins = Math.floor((seconds % 3600) / 60).toString().padStart(2, '0');
-                let secs = (seconds % 60).toString().padStart(2, '0');
-                return `${hours}:${mins}:${secs}`;
+              // Convert the filtered times back to "HH:MM" format
+              function minutesToTime(minutes) {
+                let hours = Math.floor(minutes / 60).toString().padStart(2, '0');
+                let mins = (minutes % 60).toString().padStart(2, '0');
+                return `${hours}:${mins}`;
               }
 
-              return filteredTimesInSeconds.map(secondsToTime);
+              return filteredTimesInMinutes.map(minutesToTime);
             }
 
             let usersAvailaibleTimes = filterBookedTimes(allTimesArray, usersBookedTimes, usersBookedEndTimes);
-            console.log(usersAvailaibleTimes);
+            console.log("this.usersAvailaibleTimes", usersAvailaibleTimes);
+
+            // 2024-11-06T09:00:00 05:30, 2024-11-06T09:30:00 05:30
+            // [09:00]
+
+            console.log('here ',res.dateStr,  this.meetStartTime.split('T')[0] ,res.dateStr == this.meetStartTime.split('T')[0]);
+
+            let newArr = []
+
+            // doing it to get show former time
+            for(let i=0; i<usersAvailaibleTimes.length; i++){
+
+              console.log( res.dateStr , this.meetStartTime.split('T')[0] , `${usersAvailaibleTimes[i]}:00` ,this.meetStartTime.split('T')[1] ,res.dateStr == this.meetStartTime.split('T')[0] && `${usersAvailaibleTimes[i]}:00` == this.meetStartTime.split('T')[1].split(' ')[0]);
+
+              if(res.dateStr == this.meetStartTime.split('T')[0] && `${usersAvailaibleTimes[i]}:00` == this.meetStartTime.split('T')[1].split(' ')[0]){
+                newArr.push({time : usersAvailaibleTimes[i], formerTime: true})
+              }
+              else{
+                newArr.push({time : usersAvailaibleTimes[i], formerTime: false})
+              }
+            }
+
+            usersAvailaibleTimes = newArr
+
+            console.log('now ', usersAvailaibleTimes);
+
             // ===========================================
 
             if (this.minTimeReqBeforeScheduling.status == true) {
               this.setTimesAsPerMinNotice(usersAvailaibleTimes, selectedDate)
             }
             else {
-              this.userAvailaibleArray = usersAvailaibleTimes
+              if (todaysdate == this.dateSelected) {
+                usersAvailaibleTimes = usersAvailaibleTimes.filter((time) => {
+
+                  if(time['formerTime'] == false){
+                    return time['time'] >= currentTime
+                  }
+                  else{
+                    return time['time']
+                  }
+                }
+              )
+              }
+              console.log('newArr ', usersAvailaibleTimes);
+
+              this.userAvailaibleArray = usersAvailaibleTimes;
+              this.userAvailaibleArray24 = usersAvailaibleTimes
+              this.convertTo12HourFormat();
+
             }
 
             console.log("this.userAvailaibleArray ", this.userAvailaibleArray);
-
-          }
-          else if (this.evType == "Group") {
-            function filterBookedTimes(allTimesArray, userBookedStartTimesArray, userBookedEndTimesArray, usersBookedStartTimesForThisEvent, usersBookedEndTimesForThisEvent, maxBookings) {
-              // Function to convert time string "HH:MM:SS" to seconds since midnight
-              function timeToSeconds(time) {
-                let [hours, minutes, seconds] = time.split(':').map(Number);
-                return hours * 3600 + minutes * 60 + seconds;
-              }
-
-              // Function to convert seconds since midnight back to time string "HH:MM:SS"
-              function secondsToTime(seconds) {
-                let hours = Math.floor(seconds / 3600).toString().padStart(2, '0');
-                let mins = Math.floor((seconds % 3600) / 60).toString().padStart(2, '0');
-                let secs = (seconds % 60).toString().padStart(2, '0');
-                return `${hours}:${mins}:${secs}`;
-              }
-
-              // Convert all times to seconds
-              let allTimesInSeconds = allTimesArray.map(timeToSeconds);
-              let bookedStartTimesInSeconds = userBookedStartTimesArray.map(item => timeToSeconds(item.eventStartTime));
-              let bookedEndTimesInSeconds = userBookedEndTimesArray.map(item => timeToSeconds(item.eventEndTime));
-              let eventStartTimesInSeconds = usersBookedStartTimesForThisEvent.map(item => timeToSeconds(item.eventStartTime));
-              let eventEndTimesInSeconds = usersBookedEndTimesForThisEvent.map(item => timeToSeconds(item.eventEndTime));
-
-              // Initialize a dictionary to keep track of bookings
-              let bookingCount = {};
-              usersBookedStartTimesForThisEvent.forEach(item => {
-                if (bookingCount[item.eventStartTime]) {
-                  bookingCount[item.eventStartTime]++;
-                } else {
-                  bookingCount[item.eventStartTime] = 1;
-                }
-              });
-
-              // Function to check if a time is within any booked interval
-              function isBooked(time) {
-                for (let i = 0; i < bookedStartTimesInSeconds.length; i++) {
-                  if (time >= bookedStartTimesInSeconds[i] && time < bookedEndTimesInSeconds[i]) {
-                    return true;
-                  }
-                }
-                return false;
-              }
-
-              // Function to check if a time is within any fully booked interval for the event
-              function isFullyBookedForEvent(time) {
-                for (let i = 0; i < eventStartTimesInSeconds.length; i++) {
-                  if (bookingCount[secondsToTime(eventStartTimesInSeconds[i])] >= maxBookings &&
-                    time >= eventStartTimesInSeconds[i] && time < eventEndTimesInSeconds[i]) {
-                    return true;
-                  }
-                }
-                return false;
-
-              }
-
-              // Filter out the times that are within the booked intervals or fully booked intervals for the event
-              let filteredTimesInSeconds = allTimesInSeconds.filter(time => !isBooked(time) && !isFullyBookedForEvent(time));
-
-              // Convert the filtered times back to "HH:MM:SS" format
-              return filteredTimesInSeconds.map(timeInSeconds => {
-                let time = secondsToTime(timeInSeconds);
-                let remainingBookings = maxBookings - (bookingCount[time] || 0);
-                console.log("remainingBookings ", remainingBookings);
-
-                return { time, remainingBookings };
-              });
-            }
-
-            let usersAvailaibleTimes = filterBookedTimes(allTimesArray, usersBookedTimes, usersBookedEndTimes, usersBookedStartTimesForThisEvent, usersBookedEndTimesForThisEvent, this.noOfBookingsAllowedForAParticularTimeInGrpEvent);
-            console.log("line 1344", usersAvailaibleTimes);
-            console.log(usersBookedStartTimesForThisEvent, usersBookedEndTimesForThisEvent);
-
-
-            // =============================
-
-            if (this.minTimeReqBeforeScheduling.status == true) {
-              this.setTimesAsPerMinNotice(usersAvailaibleTimes, selectedDate)
-            }
-            else {
-              this.userAvailaibleArray = usersAvailaibleTimes
-            }
-
-            console.log("this.userAvailaibleArray ", this.userAvailaibleArray);
-          }
+          // }
 
 
 
@@ -822,6 +990,8 @@ export class ReschedulingComponent implements OnInit {
     console.log(count >= this.noOfMeetingsAllowedPerDay.noOfMeetsAllowed);
 
     if (count >= this.noOfMeetingsAllowedPerDay.noOfMeetsAllowed) {
+      // this.userAvailaibleArray = []
+
       return true
     }
     else {
@@ -834,6 +1004,14 @@ export class ReschedulingComponent implements OnInit {
 
   // =====================setActiveDaysAsPerUserReq==================================
   setActiveDaysAsPerUserReq() {
+
+    // =========remove this in future==================
+    // this.allowInviteesToScheduleOn.withinDateRange.status = false
+    // this.allowInviteesToScheduleOn.days.status = true
+    // this.allowInviteesToScheduleOn.days.noOfDays = 12
+    // this.allowInviteesToScheduleOn.days.allDays = false
+    // this.allowInviteesToScheduleOn.days.onlyWeekDays = true
+    // ===================================================
 
     console.log(" ffffff this.allowInviteesToScheduleOn", this.allowInviteesToScheduleOn);
 
@@ -864,6 +1042,8 @@ export class ReschedulingComponent implements OnInit {
           start: start,
           end: end
         }
+        // this.calendarOptions.dayCellClassNames = this.customizeDayClassNames.bind(this)
+        // this.calendarOptions.dayCellDidMount = this.customizeDayMount.bind(this)
       }
       // ----------for all days ends:
       // ----------for only week days starts :
@@ -957,7 +1137,27 @@ export class ReschedulingComponent implements OnInit {
   // ===========setTimesAsPerMinNotice starts=====================
   setTimesAsPerMinNotice(userAvailaibleArray, selectedDate) {
 
+
+
     console.log("this.minTimeReqBeforeScheduling ", this.minTimeReqBeforeScheduling);
+
+    // todays date and time starts
+    let todaysdateIs = new Date();
+    console.log(todaysdateIs);
+    const day = String(todaysdateIs.getDate()).padStart(2, '0');
+    const month = String(todaysdateIs.getMonth() + 1).padStart(2, '0'); // Months are zero-based
+    const year = todaysdateIs.getFullYear();
+    let todaysdate = `${year}-${month}-${day}`; // e.g., "2024-07-25"
+    console.log("todaysdate == this.dateSelected", todaysdate == this.dateSelected);
+
+
+    const now = new Date();
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    let currentTime = `${hours}:${minutes}`;
+    console.log("currentTime ", currentTime);
+
+    // todays date and time ends
 
 
     if (this.minTimeReqBeforeScheduling.status) {
@@ -969,10 +1169,11 @@ export class ReschedulingComponent implements OnInit {
         console.log("asked hrs ", this.minTimeReqBeforeScheduling.hrs.noOfHrs);
 
 
-
+        // console.log("userAvailaibleArray ", userAvailaibleArray);
+        //  ['09:00:00', '09:30:00', '10:00:00', '10:30:00', '11:00:00', '11:30:00', '12:00:00', '12:30:00', '13:00:00', '13:30:00', '14:00:00', '14:30:00', '15:00:00', '15:30:00', '16:00:00', '16:30:00', '17:00:00']
         let timesArray = []
         for (let i = 0; i < userAvailaibleArray.length; i++) {
-          let timeStr = userAvailaibleArray[i]
+          let timeStr = userAvailaibleArray[i]['time']
           let dateTimeStr = `${selectedDate}T${timeStr}`
 
           let date = new Date(dateTimeStr)
@@ -987,12 +1188,30 @@ export class ReschedulingComponent implements OnInit {
           let differenceInHours = differenceInMinutes / 60;
           let differenceInDays = differenceInHours / 24;
 
+          // console.log("date ", date);
+          // console.log("todasDate ", todasDate);
+
+
+          // console.log(`Difference in Seconds: ${differenceInSeconds}`);
+          // console.log(`Difference in Minutes: ${differenceInMinutes}`);
+          // console.log(`Difference in Hours: ${differenceInHours}`);
+          // console.log(`Difference in Days: ${differenceInDays}`);
+
           if (differenceInHours >= this.minTimeReqBeforeScheduling.hrs.noOfHrs) {
             timesArray.push(timeStr)
           }
         }
+        // console.log("timesArray ", timesArray);
+
+        if (todaysdate == this.dateSelected) {
+          timesArray = timesArray.filter(time => time >= currentTime)
+        }
+        console.log('newArr ', timesArray);
+
 
         this.userAvailaibleArray = timesArray
+        this.userAvailaibleArray24 = timesArray
+        this.convertTo12HourFormat();
       }
       else if (this.minTimeReqBeforeScheduling.mins.status) {
 
@@ -1001,7 +1220,7 @@ export class ReschedulingComponent implements OnInit {
 
         let timesArray = []
         for (let i = 0; i < userAvailaibleArray.length; i++) {
-          let timeStr = userAvailaibleArray[i]
+          let timeStr = userAvailaibleArray[i]['time']
           let dateTimeStr = `${selectedDate}T${timeStr}`
 
           let date = new Date(dateTimeStr)
@@ -1016,19 +1235,36 @@ export class ReschedulingComponent implements OnInit {
           let differenceInHours = differenceInMinutes / 60;
           let differenceInDays = differenceInHours / 24;
 
+          // console.log("date ", date);
+          // console.log("todasDate ", todasDate);
+
+
+          // console.log(`Difference in Seconds: ${differenceInSeconds}`);
+          // console.log(`Difference in Minutes: ${differenceInMinutes}`);
+          // console.log(`Difference in Hours: ${differenceInHours}`);
+          // console.log(`Difference in Days: ${differenceInDays}`);
+
           if (differenceInMinutes >= this.minTimeReqBeforeScheduling.mins.noOfMins) {
             timesArray.push(timeStr)
           }
         }
+        // console.log("timesArray ", timesArray);
+
+        if (todaysdate == this.dateSelected) {
+          timesArray = timesArray.filter(time => time >= currentTime)
+        }
+        console.log('newArr ', timesArray);
 
         this.userAvailaibleArray = timesArray
+        this.userAvailaibleArray24 = timesArray
+        this.convertTo12HourFormat();
       }
       else {
         console.log("this.minTimeReqBeforeScheduling.days.status is true");
 
         let timesArray = []
         for (let i = 0; i < userAvailaibleArray.length; i++) {
-          let timeStr = userAvailaibleArray[i]
+          let timeStr = userAvailaibleArray[i]['time']
           let dateTimeStr = `${selectedDate}T${timeStr}`
 
           let date = new Date(dateTimeStr)
@@ -1043,17 +1279,60 @@ export class ReschedulingComponent implements OnInit {
           let differenceInHours = differenceInMinutes / 60;
           let differenceInDays = differenceInHours / 24;
 
+          // console.log("date ", date);
+          // console.log("todasDate ", todasDate);
+
+
+          // console.log(`Difference in Seconds: ${differenceInSeconds}`);
+          // console.log(`Difference in Minutes: ${differenceInMinutes}`);
+          // console.log(`Difference in Hours: ${differenceInHours}`);
+          // console.log(`Difference in Days: ${differenceInDays}`);
+
           if (differenceInDays >= this.minTimeReqBeforeScheduling.days.noOfDays) {
             timesArray.push(timeStr)
           }
         }
+        // console.log("timesArray ", timesArray);
+
+        if (todaysdate == this.dateSelected) {
+          timesArray = timesArray.filter(time => time >= currentTime)
+        }
+        console.log('newArr ', timesArray);
 
         this.userAvailaibleArray = timesArray
+        this.userAvailaibleArray24 = timesArray
+
+        console.log('userAvailaibleArray ', this.userAvailaibleArray);
+        console.log('userAvailaibleArray24 ', this.userAvailaibleArray24);
+
+        //prev
+        //   [
+        //     {
+        //         "time": "15:30",
+        //         "formerTime": true
+        //     },
+        //     {
+        //         "time": "16:30",
+        //         "formerTime": false
+        //     },
+        //     {
+        //         "time": "17:00",
+        //         "formerTime": false
+        //     }
+        // ]
+
+
+        this.convertTo12HourFormat();
       }
     }
 
   }
   // ===========setTimesAsPerMinNotice ends=======================
+
+
+
+
+
 
   // ---------------changeDisplayTimeDiv starts---------------
   changeDisplayTimeDiv() {
@@ -1067,7 +1346,9 @@ export class ReschedulingComponent implements OnInit {
     this.loading = true
     console.log("called createEvent");
     console.log("event deets ", eventName, this.timeSelected, this.dateSelected);
-
+    // df sds 10:00:00 2024-01-05
+    // ---hardcoding endTime------
+    // let allTimesArray = ['10:00:00', '10:30:00', '11:00:00', '11:30:00', '12:00:00', '12:30:00', '01:00:00', '01:30:00', '02:00:00', '02:30:00', '03:00:00', '03:30:00', '04:00:00', '04:30:00', '05:00:00', '05:30:00', '06:00:00', '06:30:00']
     let allTimesArray = this.allTimesArray
     let endTime = ""
     for (let i = 0; i < allTimesArray.length; i++) {
@@ -1086,22 +1367,23 @@ export class ReschedulingComponent implements OnInit {
         "user": this.userName,
         "userEmail": this.emailId
       }
-      // this.apiService.scheduleMeetByCalendarLink(event).subscribe((response) => {
-      //   console.log("meeting deets", response);
-      //   console.log("response ", response);
-      //   this.loading = false
-      //   if (response && response['message']) {
-      //     console.log("response ", response);
-      //     alert(response['message']);
-      //     window.location.reload();
-      //   }
-      //   else {
-      //     this.loading = false
-      //     alert(response['message'])
-      //     console.error('Invalid response:', response);
-      //     // Handle the error or show an appropriate message
-      //   }
-      // })
+      this.apiService.scheduleMeetByCalendarLink(event).subscribe((response) => {
+        console.log("meeting deets", response);
+        console.log("response ", response);
+        this.loading = false
+        if (response && response['message']) {
+          console.log("response ", response);
+          alert(response['message']);
+          window.location.reload();
+
+        }
+        else {
+          this.loading = false
+          alert(response['message'])
+          console.error('Invalid response:', response);
+          // Handle the error or show an appropriate message
+        }
+      })
     }
     else {
       this.loading = false
@@ -1126,29 +1408,68 @@ export class ReschedulingComponent implements OnInit {
 
   // --------------------------------------------------
 
-  nextButton(evName, evDurHrs, evDurMins, oneTime) {
-    localStorage.setItem("nameWhoseCalendar", this.nameWhoseCalendar)
-    localStorage.setItem("evName", evName)
-    localStorage.setItem("evDurHrs", evDurHrs)//  0
-    localStorage.setItem("evDurMins", evDurMins) //30
-    localStorage.setItem("oneTime", oneTime) //09:00:00
-    localStorage.setItem("day", this.selectedDayName)
-    localStorage.setItem("date", this.dateSelected)
-    localStorage.setItem("month", this.selectedMonth)
-    localStorage.setItem("evType", this.evType)
-    localStorage.setItem("allowInviteesToAddGuests", JSON.stringify(this.allowInviteesToAddGuests))
-    localStorage.setItem("lastNameRequired", this.lastNameRequired)
-    localStorage.setItem('redirectTo', JSON.stringify(this.redirectTo))
+  nextButton(oneTime) {
 
-    console.log(oneTime[0], oneTime[1], oneTime[3], oneTime[4]);
+    console.log('oneTime ', oneTime);
+    // {time: '17:00', formerTime: false
 
-    let hrs = Number(oneTime[0] + oneTime[1]) //09
-    let mins = Number(oneTime[3] + oneTime[4]) //00
+    let time24
+    let startTimeWdTimeZoneOffset
+    let endTimeWdTimeZoneOffset
+
+    if (this.evType == 'One-on-One') {
+      time24 = this.userAvailaibleArray24[this.userAvailaibleArray.indexOf(oneTime)];
+      console.log('Selected time in 24-hour format:', time24);
+
+      startTimeWdTimeZoneOffset = `${this.dateSelected}T${time24}:00`
+      startTimeWdTimeZoneOffset = moment.tz(startTimeWdTimeZoneOffset, this.selectedTimeZone).format();
+      console.log('startTimeWdTimeZoneOffset ', startTimeWdTimeZoneOffset);
+
+    }
+    else {
+
+      const index = this.userAvailaibleArray.findIndex(item => item.time === oneTime.time);
+      console.log("index ", index);
+
+      time24 = index !== -1 ? this.userAvailaibleArray24[index]['time'] : null; // Handle case where time is not found
+      console.log('time24 ', time24);
+
+      startTimeWdTimeZoneOffset = `${this.dateSelected}T${time24}:00`
+      startTimeWdTimeZoneOffset = moment.tz(startTimeWdTimeZoneOffset, this.selectedTimeZone).format();
+      console.log('startTimeWdTimeZoneOffset ', startTimeWdTimeZoneOffset);
+
+      console.log('Selected time in 24-hour format:', time24);
+    }
+
+    // localStorage.setItem("nameWhoseCalendar", this.nameWhoseCalendar)
+    // localStorage.setItem("evName", evName)
+    // localStorage.setItem("evDurHrs", evDurHrs)//  0
+    // localStorage.setItem("evDurMins", evDurMins) //30
+    // localStorage.setItem("oneTime", time24) //09:00:00
+    // localStorage.setItem("day", this.selectedDayName)
+    // localStorage.setItem("date", this.dateSelected)
+    // localStorage.setItem("month", this.selectedMonth)
+    // localStorage.setItem("evType", this.evType)
+    // localStorage.setItem("allowInviteesToAddGuests", JSON.stringify(this.allowInviteesToAddGuests))
+    // localStorage.setItem("lastNameRequired", this.lastNameRequired)
+    // localStorage.setItem('redirectTo', JSON.stringify(this.redirectTo))
+    // localStorage.setItem('startTimeWdTimeZoneOffset', startTimeWdTimeZoneOffset)
+    // localStorage.setItem('selectedTimeZone', this.selectedTimeZone)
+
+    // console.log("since time24 is ", time24);
+
+    // console.log(time24[0], time24[1], time24[3], time24[4]);
+
+    let hrs = Number(time24[0] + time24[1]) //09
+    let mins = Number(time24[3] + time24[4]) //00
 
     console.log("hrs, mins", hrs, mins);
 
-    let endTimeHrs = Number(hrs + Number(evDurHrs))  //9 + 0 = 9
-    let endTimeMins = Number(mins + Number(evDurMins)) //0 + 30 = 30
+    // workingStartHours = workingStartHours + Math.abs(workingStartMinutes/60)
+    // workingStartMinutes = workingStartMinutes - 60*(Math.abs(workingStartMinutes/60))
+
+    let endTimeHrs = Number(hrs + Number(this.evDurHrs))  //9 + 0 = 9
+    let endTimeMins = Number(mins + Number(this.evDurMins)) //0 + 30 = 30
     console.log("endTimeHrs ", endTimeHrs, "endTimeMins ", endTimeMins);
 
     if (endTimeMins >= 60) {
@@ -1161,42 +1482,53 @@ export class ReschedulingComponent implements OnInit {
     let endTime;
     if (endTimeMins == 0) {
       if (endTimeHrs == 0) {
-        endTime = `00:00:00`
+        endTime = `00:00`
       }
       else if (endTimeHrs < 10) {
-        endTime = `0${endTimeHrs}:00:00`
+        endTime = `0${endTimeHrs}:00`
       }
       else {
-        endTime = `${endTimeHrs}:00:00`
+        endTime = `${endTimeHrs}:00`
       }
+      // endTime = `${endTimeHrs}:00:00`
     }
     else if (endTimeMins < 10) {
       if (endTimeHrs == 0) {
-        endTime = `00:0${endTimeMins}:00`
+        endTime = `00:0${endTimeMins}`
       }
       else if (endTimeHrs < 10) {
-        endTime = `0${endTimeHrs}:0${endTimeMins}:00`
+        endTime = `0${endTimeHrs}:0${endTimeMins}`
       }
       else {
-        endTime = `${endTimeHrs}:0${endTimeMins}:00`
+        endTime = `${endTimeHrs}:0${endTimeMins}`
       }
+      // endTime = `${endTimeHrs}:0${endTimeMins}:00`
     }
     else {
       if (endTimeHrs == 0) {
-        endTime = `00:${endTimeMins}:00`
+        endTime = `00:${endTimeMins}`
       }
       else if (endTimeHrs < 10) {
-        endTime = `0${endTimeHrs}:${endTimeMins}:00`
+        endTime = `0${endTimeHrs}:${endTimeMins}`
       }
       else {
-        endTime = `${endTimeHrs}:${endTimeMins}:00`
+        endTime = `${endTimeHrs}:${endTimeMins}`
       }
+      // endTime = `${endTimeHrs}:${endTimeMins}:00`
     }
 
+    endTimeWdTimeZoneOffset = `${this.dateSelected}T${endTime}:00`
+    endTimeWdTimeZoneOffset = moment.tz(endTimeWdTimeZoneOffset, this.selectedTimeZone).format();
+    console.log('endTimeWdTimeZoneOffset ', endTimeWdTimeZoneOffset);
 
 
-    localStorage.setItem("endTime", endTime)
-    this.router.navigate(['/makeMeeting'])
+    // localStorage.setItem("endTime", endTime)
+    // localStorage.setItem('endTimeWdTimeZoneOffset', endTimeWdTimeZoneOffset)
+
+    this.apiService.setValuesForResched(this.inviteeEmailForReshced, this.inviteeName, this.nameWhoseCalendar, this.evName, this.guests, '', `${this.evDurHrs}:${this.evDurMins}`, startTimeWdTimeZoneOffset, endTimeWdTimeZoneOffset, this.oldStTime, this.oldEndTime, this.meetId, this.evId, this.userId, this.emailId )
+
+
+    this.router.navigate(['/reshchedForm'])
 
   }
 

@@ -90,6 +90,24 @@ export class APIService {
   private reqEventSubject = new BehaviorSubject<object>({});
   private cloduraBrandingReqSubject = new BehaviorSubject<boolean>
 
+  private reschedVariablesSubject = new BehaviorSubject<any>({
+    emailIdForResched: '',
+    inviteeNameForResched: '',
+    calOwnerNameForResched: '',
+    evNameForResched: '',
+    guestsForResched: [],
+    reasonForResched: '',
+    duratnForResched: '',
+    oldStDateTimeDayForResched: '',
+    oldEndDateTimeDayForResched: '',
+    newStDateTimeDayForResched: '',
+    newEndDateTimeDayForResched: '',
+    meetIdForResched: '',
+    evIdForResched : '',
+    uidOfCalOwner : '',
+    calOwnerEmail : ''
+  });
+
 
   public name$ = this.nameSubject.asObservable();;
   // const name = params['name'];
@@ -163,10 +181,11 @@ export class APIService {
   public reqEvent$ = this.reqEventSubject.asObservable()
   public cloduraBrandingReq$ = this.cloduraBrandingReqSubject.asObservable()
 
+  public reschedVariables$ = this.reschedVariablesSubject.asObservable();
 
 
 
-  API_URL = 'http://localhost:3000';
+  API_URL = 'http://localhost:3033';
 
   private headers: HttpHeaders = new HttpHeaders();
 
@@ -184,7 +203,7 @@ export class APIService {
 
   async getParticularUserByUid(uid) {//changed
 
-    const response = await this.httpClient.get(`api/meetings/getParticularUserBuUid?uid=${uid}`).toPromise();
+    const response = await this.httpClient.get(`${this.API_URL}/api/meetings/getParticularUserBuUid?uid=${uid}`).toPromise();
 
     console.log("got user deets ", response['userDeets']);
     let userDeets = response['userDeets']
@@ -193,7 +212,7 @@ export class APIService {
   }
 
   async getParticularUserEvSchemaDeets(uid) {//changed
-    const response = await this.httpClient.get(`api/meetings/getEvSchema?uid=${uid}`).toPromise();
+    const response = await this.httpClient.get(`${this.API_URL}api/meetings/getEvSchema?uid=${uid}`).toPromise();
 
     console.log("got event schema deets ", response['reqEvSchema']);
     let reqEvSchema = response['reqEvSchema']
@@ -270,6 +289,35 @@ export class APIService {
       );
 
   }
+
+
+  setValuesForResched(email, inviteeName, calOwnerName, evName, guests, reason, duratn, nwStDateTimeDay, nwEndDateTimeDay, oldStDateTimeDay, oldEndDateTimeDay, meetId, evId, userId, calOwnerEmail) {
+    let obj = {
+      emailIdForResched: email,
+      inviteeNameForResched: inviteeName,
+      calOwnerNameForResched: calOwnerName,
+      evNameForResched: evName,
+      guestsForResched: guests,
+      reasonForResched: reason,
+      duratnForResched: duratn,
+      oldStDateTimeDayForResched: oldStDateTimeDay,
+      oldEndDateTimeDayForResched: oldEndDateTimeDay,
+      newStDateTimeDayForResched: nwStDateTimeDay,
+      newEndDateTimeDayForResched: nwEndDateTimeDay,
+      meetIdForResched: meetId,
+      evIdForResched: evId,
+      uidOfCalOwner : userId,
+      calOwnerEmail : calOwnerEmail
+    }
+    this.reschedVariablesSubject.next(obj)
+  }
+
+  rescheduleMeet(newUpdatedMeetDeets){
+    // need to change
+    return this.httpClient.patch(
+      `api/meetings/rescheduleMeet`,
+      newUpdatedMeetDeets
+    );  }
 
   // async callSharableCalendar(userId, evId, eventN){
   //   await this.httpClient.get(`api/meetings/calendarLink/sharable?userId=${userId}&evId=${evId}&eventN=${eventN}`).toPromise();

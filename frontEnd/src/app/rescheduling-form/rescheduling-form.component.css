@@ -1,0 +1,198 @@
+#main {
+  margin: auto;
+  display: flex;
+  justify-content: space-between;
+}
+
+#waitBox {
+  box-shadow: rgba(34, 35, 36, 0.2) 0px 8px 24px;
+  width: 40%;
+  padding: 15px;
+  margin-top: 130px;
+  position: absolute;
+  background-color: rgb(243, 239, 239);
+  margin-left: 30%;
+  border-radius: 10px;
+}
+
+#waitBox h2,
+#waitBox div {
+  margin: 0;
+  padding: 0;
+}
+
+.icons {
+  vertical-align: middle;
+}
+
+#clodura {
+  font-size: 18px;
+}
+
+#content {
+   /* display: flex; */
+   /* justify-content: space-evenly; */
+   /* width: 70%; */
+   /* height: fit-content; */
+  margin: auto;
+  margin-top: 80px;
+   /* border-radius: 8px; */
+   /* padding: 20px; */
+}
+
+#leftDiv {
+  padding: 30px;
+  font-weight: bold;
+  font-size: 16px;
+
+}
+
+#backButton {
+  border-radius: 50%;
+  /* background-color: white; */
+  border: 1px solid rgb(233, 231, 231);
+  margin-bottom: 20px;
+  color: white;
+}
+
+#backButton ng-icon {
+  /* font-weight: bold; */
+  color: #1671fb;
+}
+
+.leftSideDetails {
+  margin-bottom: 15px;
+}
+
+#eventName {
+  font-size: 25px;
+  margin-bottom: 25px;
+}
+
+ng-icon {
+  display: inline;
+  margin-right: 5px;
+  font-size: 25px;
+}
+
+#rightDiv {
+  padding: 30px;
+  font-size: 14px;
+}
+
+input {
+  display: block;
+  padding: 10px;
+  border-radius: 4px;
+  border: 1px solid #d0d0d0;
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+form > button {
+  display: block;
+  margin-top: 10px;
+  border-radius: 50px;
+  color: white;
+}
+
+#addGuests {
+  padding: 5px 10px;
+  background-color: white !important;
+  border-radius: 15px;
+  margin-top: 5px;
+  color: #2596FF;
+  border: none !important;
+  background: #E9F5FF !important;
+}
+
+#scheduleEvent {
+  padding: 10px 15px;
+  /* background-color: #1671fb; */
+  border: none;
+  color: white;
+  font-weight: bold;
+}
+
+h3 {
+  font-size: 20px;
+  font-weight: bold;
+}
+
+form label {
+  font-weight: bold;
+  margin: 13px 0 13px 0;
+}
+
+.warning {
+  margin: 5px 0px;
+  color: #cf6868;
+}
+
+#addGuestsDiv {
+  margin-bottom: 5px;
+}
+
+.question {
+  font-weight: bold;
+}
+
+#loadingDiv {
+  z-index: 1;
+  margin: auto;
+  width: 40%;
+  box-shadow: rgba(0, 0, 0, 0.25) 0px 54px 55px,
+    rgba(0, 0, 0, 0.12) 0px -12px 30px, rgba(0, 0, 0, 0.12) 0px 4px 6px,
+    rgba(0, 0, 0, 0.17) 0px 12px 13px, rgba(0, 0, 0, 0.09) 0px -3px 5px;
+  padding: 20px 10px 20px 10px;
+  background-color: rgb(241, 237, 237);
+  font-size: 18px;
+}
+
+#loadingDiv p {
+  margin: 0;
+  padding: 0;
+}
+
+.backBtn{
+  border:none;
+  background-color: white;
+}
+
+
+.vl {
+  border-left: 2px solid #D0D0D0;
+  height: 500px;
+}
+
+.hl {
+  align-items: center;
+  width: 90%;
+  margin-top: 5px;
+  height: 2px;
+  background-color: #D0D0D0;
+  margin: 15px auto;
+}
+
+.heroSection{
+  display: flex;
+  justify-content: space-evenly;
+  padding: 0px 20px;
+}
+.formerTime{
+  margin-top: 50px;
+}
+.strikeThrough{
+  text-decoration: line-through;
+}
+
+@media (max-width: 780px) {
+  #content {
+    display: block;
+    height: 100%;
+  }
+
+  #leftDiv {
+    width: 100%;
+  }
+}

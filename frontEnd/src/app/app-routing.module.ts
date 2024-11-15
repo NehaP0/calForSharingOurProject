@@ -7,6 +7,9 @@ import { CancellationPageComponent } from './cancellation-page/cancellation-page
 import { CancelConfirmedComponent } from './cancel-confirmed/cancel-confirmed.component';
 import { OopsComponent } from './oops/oops.component';
 import { ReschedulingComponent } from './rescheduling/rescheduling.component';
+import { ReschedulingFormComponent } from './rescheduling-form/rescheduling-form.component';
+import { EmailResponseThankyouComponent } from './email-response-thankyou/email-response-thankyou.component';
+import { ThankyouRescheduledComponent } from './thankyou-rescheduled/thankyou-rescheduled.component';
 
 
 const routes: Routes = [
@@ -17,7 +20,10 @@ const routes: Routes = [
   {path : 'cancelConfirmed', component : CancelConfirmedComponent},
   {path : 'oops', component : OopsComponent},
   {path: 'rescheduling', component : ReschedulingComponent},
-  { path: '**', redirectTo: 'cancelMeet', pathMatch: 'full' }
+  { path: "reshchedForm", component: ReschedulingFormComponent },
+  { path : "trackResponseThankyou", component: EmailResponseThankyouComponent },
+  { path : "thankYouForRescheduling", component : ThankyouRescheduledComponent },
+  { path: '**', redirectTo: 'create', pathMatch: 'full' }
 ];
 
 @NgModule({
